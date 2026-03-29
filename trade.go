@@ -133,6 +133,7 @@ type Trade struct {
 	Contract    *Contract
 	Order       *Order
 	OrderStatus OrderStatus
+	OrderState  *OrderState // Margin data from openOrder callback (what-if orders)
 	mu          sync.RWMutex
 	fills       []*Fill
 	logs        []TradeLogEntry
@@ -199,6 +200,14 @@ func (t *Trade) Done() <-chan struct{} {
 // Ack returns a channel that will be closed when the trade is acknowledged by IB.
 func (t *Trade) Ack() <-chan struct{} {
 	return t.ack
+}
+
+// GetOrderState returns the OrderState from the most recent openOrder callback.
+// Thread-safe: reads under RLock.
+func (t *Trade) GetOrderState() *OrderState {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	return t.OrderState
 }
 
 // markDone closes the done channel to signal trade completion.

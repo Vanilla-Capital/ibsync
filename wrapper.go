@@ -148,6 +148,7 @@ func (w *WrapperSync) OpenOrder(orderID int64, contract *Contract, order *Order,
 		trade.Order.OrderType = order.OrderType
 		trade.Order.OrderRef = order.OrderRef
 		trade.OrderStatus.Status = status
+		trade.OrderState = orderState
 		*trade.Contract = *contract
 		trade.markAck()
 		trade.mu.Unlock()
@@ -158,6 +159,7 @@ func (w *WrapperSync) OpenOrder(orderID int64, contract *Contract, order *Order,
 			Status:  status,
 		}
 		trade = NewTrade(contract, order, orderStatus)
+		trade.OrderState = orderState
 		trade.markAck()
 		w.state.trades[key] = trade
 		w.state.permID2Trade[trade.Order.PermID] = trade
